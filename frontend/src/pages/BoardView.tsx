@@ -7,24 +7,33 @@ import {
   Typography,
   Button,
   TextField,
-  Paper,
   IconButton,
-  AppBar,
-  Toolbar,
+  Paper,
   Dialog,
-  DialogTitle,
   DialogContent,
   DialogActions,
+  DialogTitle,
   CircularProgress,
+  AppBar,
+  Toolbar,
 } from "@mui/material";
-import { Add as AddIcon, ArrowBack as ArrowBackIcon, DragIndicator as DragIcon } from "@mui/icons-material";
+import { Add as AddIcon, ArrowBack as ArrowBackIcon } from "@mui/icons-material";
+import List from "../components/List";
 
-interface List {
+interface Card {
+  _id: string;
+  title: string;
+  description?: string;
+}
+
+interface ListType {
   _id: string;
   title: string;
   board: string;
   position: number;
+  cards?: Card[];
 }
+
 interface Board {
   _id: string;
   title: string;
@@ -34,19 +43,18 @@ interface Board {
 const BoardView = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [lists, setLists] = useState<List[]>([]);
+  const [lists, setLists] = useState<ListType[]>([]);
   const [board, setBoard] = useState<Board | null>(null);
   const [newListTitle, setNewListTitle] = useState("");
-  const [openDialog, setOpenDialog] = useState(false);
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchBoardData = async () => {
     if (!id) return;
-
     try {
       const [boardRes, listsRes] = await Promise.all([
         api.get<Board>(`/boards/${id}`),
-        api.get<List[]>(`/lists/board/${id}`),
+        api.get<ListType[]>(`/lists/board/${id}`),
       ]);
       setBoard(boardRes.data);
       setLists(listsRes.data);
@@ -58,51 +66,73 @@ const BoardView = () => {
   };
 
   const createList = async () => {
-    if (!newListTitle.trim() || !id) return;
-
+    if (!newListTitle.trim() || !id) {
+      console.error("List title or board id missing");
+      return;
+    }
     try {
-      const res = await api.post<List>("/lists", {
+      const res = await api.post<ListType>("/lists", {
         title: newListTitle,
         board: id,
         position: lists.length,
       });
-      setLists([...lists, res.data]);
+      setLists((prev) => [...prev, res.data]);
       setNewListTitle("");
-      setOpenDialog(false);
-    } catch (err) {
-      console.error(err);
+      setOpen(false);
+    } catch (err: any) {
+      console.error("Error creating list:", err);
     }
+  };
+
+  const handleAddCard = (listId: string, newCard: Card) => {
+    setLists((prevLists) =>
+      prevLists.map((list) =>
+        list._id === listId ? { ...list, cards: [...(list.cards ?? []), newCard] } : list
+      )
+    );
   };
 
   useEffect(() => {
     fetchBoardData();
   }, [id]);
 
-  const handleOpenDialog = () => setOpenDialog(true);
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => {
+    setOpen(false);
     setNewListTitle("");
   };
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-        <CircularProgress size={60} />
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+        bgcolor="#f5f3ff"
+      >
+        <CircularProgress sx={{ color: "#7c3aed" }} size={60} />
       </Box>
     );
   }
 
   if (!board) {
     return (
-      <Container sx={{ textAlign: "center", mt: 8 }}>
-        <Typography variant="h6" color="error" gutterBottom>
+      <Container sx={{ textAlign: "center", mt: 10 }}>
+        <Typography variant="h4" color="#dc2626" gutterBottom>
           Board not found
         </Typography>
         <Button
+          color="primary"
           variant="outlined"
           startIcon={<ArrowBackIcon />}
           onClick={() => navigate("/")}
-          sx={{ mt: 2 }}
+          sx={{
+            mt: 2,
+            borderColor: "#8b5cf6",
+            color: "#8b5cf6",
+            "&:hover": { borderColor: "#7c3aed", bgcolor: "#f3f4f6" },
+          }}
         >
           Back to Dashboard
         </Button>
@@ -111,16 +141,25 @@ const BoardView = () => {
   }
 
   return (
-    <Box sx={{ flexGrow: 1, minHeight: "100vh", bgcolor: "grey.100", pb: 4 }}>
-      <AppBar position="static" color="primary" elevation={3}>
+    <Box sx={{ flexGrow: 1, minHeight: "100vh", bgcolor: "#f5f3ff", pt: 2, pb: 5 }}>
+      <AppBar position="sticky" sx={{ bgcolor: "#7c3aed" }} elevation={3}>
         <Toolbar>
           <IconButton onClick={() => navigate("/")} color="inherit" edge="start" sx={{ mr: 2 }}>
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 600 }}>
+          <Typography variant="h5" component="div" sx={{ flexGrow: 1, color: "white", fontWeight: 600 }}>
             {board.title}
           </Typography>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenDialog} sx={{ borderRadius: 2 }}>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleOpen}
+            sx={{
+              borderRadius: 3,
+              bgcolor: "#8b5cf6",
+              "&:hover": { bgcolor: "#7c3aed" },
+            }}
+          >
             Add List
           </Button>
         </Toolbar>
@@ -128,7 +167,11 @@ const BoardView = () => {
 
       <Container maxWidth={false} sx={{ py: 3, px: 2 }}>
         {board.description && (
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 3, ml: 1 }}>
+          <Typography
+            variant="subtitle1"
+            color="#6b7280"
+            sx={{ fontStyle: "italic", mb: 3, ml: 1 }}
+          >
             {board.description}
           </Typography>
         )}
@@ -138,85 +181,48 @@ const BoardView = () => {
             sx={{
               textAlign: "center",
               py: 10,
-              border: "2px dashed",
-              borderColor: "grey.300",
-              borderRadius: 2,
-              bgcolor: "background.paper",
+              border: "2px dashed #c4b5fd",
+              borderRadius: 4,
+              bgcolor: "white",
+              color: "#7c3aed",
             }}
           >
-            <Typography variant="h6" color="text.secondary" gutterBottom>
-              No lists yet
+            <Typography variant="h4" gutterBottom>
+              No Lists Present
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Create your first list to start adding tasks
+            <Typography variant="body1" sx={{ mb: 2, color: "#6b7280" }}>
+              Use the button above to add your first list.
             </Typography>
-            <Button variant="outlined" startIcon={<AddIcon />} onClick={handleOpenDialog}>
-              Create List
+            <Button
+              variant="outlined"
+              onClick={handleOpen}
+              sx={{
+                borderColor: "#8b5cf6",
+                color: "#8b5cf6",
+                "&:hover": { borderColor: "#7c3aed", bgcolor: "#f3f4f6" },
+              }}
+            >
+              Add List
             </Button>
           </Box>
         ) : (
-          <Box sx={{ display: "flex", gap: 2, overflowX: "auto", pb: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 3,
+              overflowX: "auto",
+              pb: 3,
+              minHeight: "60vh",
+            }}
+          >
             {lists.map((list) => (
-              <Paper
-                key={list._id}
-                elevation={2}
-                sx={{
-                  minWidth: 280,
-                  maxWidth: 280,
-                  bgcolor: "background.paper",
-                  display: "flex",
-                  flexDirection: "column",
-                  borderRadius: 2,
-                  boxShadow: "0px 4px 8px rgba(0,0,0,0.1)",
-                }}
-              >
-                <Box
-                  sx={{
-                    p: 2,
-                    borderBottom: 1,
-                    borderColor: "grey.300",
-                    display: "flex",
-                    alignItems: "center",
-                    bgcolor: "grey.100",
-                    borderTopLeftRadius: 8,
-                    borderTopRightRadius: 8,
-                  }}
-                >
-                  <DragIcon color="disabled" sx={{ mr: 1 }} />
-                  <Typography variant="subtitle1" fontWeight="medium" sx={{ flexGrow: 1 }}>
-                    {list.title}
-                  </Typography>
-                  <IconButton size="small" aria-label="Add card">
-                    <AddIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-
-                <Box sx={{ p: 2, flexGrow: 1, minHeight: 200 }}>
-                  <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 4 }}>
-                    No cards yet
-                  </Typography>
-                </Box>
-
-                <Box
-                  sx={{
-                    p: 1,
-                    borderTop: 1,
-                    borderColor: "grey.300",
-                    borderBottomLeftRadius: 8,
-                    borderBottomRightRadius: 8,
-                  }}
-                >
-                  <Button fullWidth startIcon={<AddIcon />} size="small" variant="text">
-                    Add Card
-                  </Button>
-                </Box>
-              </Paper>
+              <List key={list._id} list={list} onAddCard={handleAddCard} />
             ))}
           </Box>
         )}
 
-        <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-          <DialogTitle>Create New List</DialogTitle>
+        <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
+          <DialogTitle sx={{ color: "#1f2937" }}>Add New List</DialogTitle>
           <DialogContent>
             <TextField
               autoFocus
@@ -227,12 +233,31 @@ const BoardView = () => {
               variant="outlined"
               value={newListTitle}
               onChange={(e) => setNewListTitle(e.target.value)}
-              sx={{ mt: 1 }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 2,
+                  "&:hover fieldset": { borderColor: "#a78bfa" },
+                  "&.Mui-focused fieldset": { borderColor: "#8b5cf6" },
+                },
+                "& .MuiInputLabel-root.Mui-focused": { color: "#8b5cf6" },
+              }}
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleCloseDialog}>Cancel</Button>
-            <Button onClick={createList} variant="contained" disabled={!newListTitle.trim()}>
+            <Button onClick={handleClose} sx={{ color: "#6b7280" }}>
+              Cancel
+            </Button>
+            <Button
+              onClick={createList}
+              variant="contained"
+              disabled={!newListTitle.trim()}
+              sx={{
+                bgcolor: "#8b5cf6",
+                color: "white",
+                "&:hover": { bgcolor: "#7c3aed" },
+                "&:disabled": { bgcolor: "#d1d5db", color: "#9ca3af" },
+              }}
+            >
               Create
             </Button>
           </DialogActions>

@@ -1,0 +1,11 @@
+**/.env
+
+# Node modules in any folder
+**/node_modules/
+
+# Build outputs, if present
+**/dist/
+**/build/
+
+# Logs
+**/*.log

@@ -3,12 +3,12 @@ import List from "../models/List.js";
 // Create a new list in a board
 export const createList = async (req, res) => {
   try {
-    const { title, boardId, position } = req.body;
-    if (!title || !boardId) {
-      return res.status(400).json({ message: "Title and boardId are required" });
-    }
+const { title, board, position } = req.body;
+if (!title || !board) {
+  return res.status(400).json({ message: "Title and board are required" });
+}
+const list = await List.create({ title, board, position });
 
-    const list = await List.create({ title, board: boardId, position });
     res.status(201).json(list);
   } catch (err) {
     res.status(500).json({ message: err.message });

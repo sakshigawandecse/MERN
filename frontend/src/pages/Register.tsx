@@ -12,10 +12,9 @@ import {
   Alert,
   InputAdornment,
   IconButton,
-  Divider,
   CircularProgress,
 } from "@mui/material";
-import { Visibility, VisibilityOff, Person, Email, Lock } from "@mui/icons-material";
+import { Visibility, VisibilityOff, Person, Email, Lock, Dashboard } from "@mui/icons-material";
 
 interface AuthResponse {
   token: string;
@@ -55,22 +54,55 @@ const Register = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
         padding: 2,
+        bgcolor: "#faf5ff",
       }}
     >
-      <Paper elevation={10} sx={{ width: "100%", maxWidth: 400, padding: 4, borderRadius: 3 }}>
+      <Paper 
+        elevation={0}
+        sx={{ 
+          width: "100%", 
+          maxWidth: 400, 
+          padding: 4,
+          borderRadius: 3,
+          bgcolor: "white",
+          boxShadow: "0 20px 25px -5px rgba(139, 92, 246, 0.1), 0 10px 10px -5px rgba(139, 92, 246, 0.04)",
+          border: "1px solid #e5e7eb"
+        }}
+      >
         <Box textAlign="center" mb={3}>
-          <Typography variant="h4" fontWeight="bold" color="text.primary" gutterBottom>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", mb: 2 }}>
+            <Dashboard 
+              sx={{ 
+                fontSize: "40px", 
+                color: "#7c3aed",
+                mr: 1
+              }} 
+            />
+            <Typography variant="h4" fontWeight="bold" sx={{ color: "#7c3aed" }}>
+              Task Manager
+            </Typography>
+          </Box>
+          <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ color: "#1f2937" }}>
             Create Account
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" sx={{ color: "#6b7280" }}>
             Get started with your task management
           </Typography>
         </Box>
 
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert 
+            severity="error" 
+            sx={{ 
+              mb: 2,
+              borderRadius: 2,
+              "& .MuiAlert-icon": { color: "#dc2626" },
+              bgcolor: "#fef2f2",
+              color: "#7f1d1d",
+              border: "1px solid #fecaca"
+            }}
+          >
             {error}
           </Alert>
         )}
@@ -88,7 +120,7 @@ const Register = () => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Person color="action" />
+                  <Person sx={{ color: "#6b7280" }} />
                 </InputAdornment>
               ),
             }}
@@ -102,11 +134,19 @@ const Register = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            sx={{ mb: 2 }}
+            sx={{
+  mb: 2,
+  "& input:-webkit-autofill": {
+    WebkitBoxShadow: "0 0 0 1000px white inset !important",
+    WebkitTextFillColor: "#1f2937 !important",
+    caretColor: "#1f2937",
+  },
+}}
+
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Email color="action" />
+                  <Email sx={{ color: "#6b7280" }} />
                 </InputAdornment>
               ),
             }}
@@ -120,11 +160,19 @@ const Register = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            sx={{ mb: 3 }}
+           sx={{
+  mb: 2,
+  "& input:-webkit-autofill": {
+    WebkitBoxShadow: "0 0 0 1000px white inset !important",
+    WebkitTextFillColor: "#1f2937 !important",
+    caretColor: "#1f2937",
+  },
+}}
+
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Lock color="action" />
+                  <Lock sx={{ color: "#6b7280" }} />
                 </InputAdornment>
               ),
               endAdornment: (
@@ -134,6 +182,7 @@ const Register = () => {
                     onClick={() => setShowPassword(!showPassword)}
                     edge="end"
                     disabled={isLoading}
+                    sx={{ color: "#6b7280" }}
                   >
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
@@ -153,24 +202,32 @@ const Register = () => {
               py: 1.5,
               mb: 2,
               borderRadius: 2,
-              background: "linear-gradient(45deg, #f093fb 0%, #f5576c 100%)",
-              "&:hover": {
-                background: "linear-gradient(45deg, #e184f0 0%, #e34c63 100%)",
+              background: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
+              "&:hover": { 
+                background: "linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)",
+                transform: "translateY(-1px)",
+                boxShadow: "0 6px 12px rgba(139, 92, 246, 0.4)"
               },
-              "&:disabled": {
-                background: "#b0b0b0",
-              },
+              boxShadow: "0 4px 6px rgba(139, 92, 246, 0.3)",
+              transition: "all 0.2s ease",
+              fontWeight: "bold",
+              fontSize: "16px"
             }}
           >
-            {isLoading ? <CircularProgress size={24} /> : "Register"}
+            {isLoading ? <CircularProgress size={24} sx={{ color: "white" }} /> : "Register"}
           </Button>
 
-          <Divider sx={{ my: 2 }}>OR</Divider>
-
           <Box textAlign="center" mt={2}>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{ color: "#6b7280" }}>
               Already have an account?{" "}
-              <Link to="/login" style={{ color: "#f5576c", textDecoration: "none", fontWeight: 500 }}>
+              <Link 
+                to="/login" 
+                style={{ 
+                  textDecoration: "none", 
+                  color: "#7c3aed",
+                  fontWeight: "500"
+                }}
+              >
                 Login
               </Link>
             </Typography>
