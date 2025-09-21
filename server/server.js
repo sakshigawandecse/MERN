@@ -9,21 +9,32 @@ import boardRoutes from "./routes/board.js";
 import listRoutes from "./routes/list.js";
 import cardRoutes from "./routes/card.js";
 
-// Load environment variables
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-// Middleware
-app.use(cors({
-  origin: 'https://mern-5iy1.vercel.app',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  credentials: true,
-}));
-app.use(express.json());
+// Allowed origins for CORS
+const allowedOrigins = [
+  "http://localhost:5173",           // Local frontend dev URL
+  "https://mern-5iy1.vercel.app"    // Deployed frontend URL
+];
 
+// CORS Middleware - only one instance
+app.use(cors({
+  origin: function(origin, callback){
+    if(!origin) return callback(null, true); // allow requests like curl or Postman
+    if(allowedOrigins.indexOf(origin) === -1){
+      const msg = 'The CORS policy for this site does not allow access from this Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true
+}));
+
+// Parse JSON requests
 app.use(express.json());
 
 // Routes
@@ -32,21 +43,21 @@ app.use("/api/boards", boardRoutes);
 app.use("/api/lists", listRoutes);
 app.use("/api/cards", cardRoutes);
 
-// Global error handler
+// Global error handler (if any)
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: "Something broke!" });
 });
 
-// Enable mongoose debug logging for detailed info (optional)
+// Enable mongoose debug logging
 mongoose.set('debug', true);
 
-// Connect to MongoDB & start server with detailed error handling
+// Connect to MongoDB & start the server with error handling
 const connectDb = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
       tls: true,
-      tlsAllowInvalidCertificates: true, // Disable this in production for security
+      tlsAllowInvalidCertificates: true, // set false in production for security
     });
     console.log("✅ MongoDB connected");
     app.listen(PORT, () => {
@@ -65,6 +76,6 @@ const connectDb = async () => {
     }
     process.exit(1);
   }
-}
+};
 
 connectDb();
