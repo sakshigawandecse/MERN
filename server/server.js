@@ -1,4 +1,3 @@
-// server.js
 import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
@@ -32,19 +31,33 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: "Something broke!" });
 });
 
-// Connect to MongoDB & start server
-(async () => {
+// Enable mongoose debug logging for detailed info (optional)
+mongoose.set('debug', true);
+
+// Connect to MongoDB & start server with detailed error handling
+const connectDb = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
       tls: true,
-      tlsAllowInvalidCertificates: true, // temporary for debugging - use false in prod 
+      tlsAllowInvalidCertificates: true, // Disable this in production for security
     });
-
     console.log("✅ MongoDB connected");
-    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
   } catch (err) {
-    console.error("❌ MongoDB connection failed:", err);
+    console.error("❌ MongoDB connection failed:");
+    console.error("Name:", err.name);
+    console.error("Message:", err.message);
+    console.error("Stack:", err.stack);
+    if (err.reason && err.reason.type) {
+      console.error("Reason type:", err.reason.type);
+    }
+    if (err.code) {
+      console.error("Error code:", err.code);
+    }
     process.exit(1);
   }
-})();
+}
 
+connectDb();

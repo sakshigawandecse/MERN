@@ -1,10 +1,10 @@
-import { AppBar, Toolbar, Typography, Button, Box, Avatar } from "@mui/material";
+import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
 import { ExitToApp as LogoutIcon, Dashboard as DashboardIcon } from "@mui/icons-material";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   return (
