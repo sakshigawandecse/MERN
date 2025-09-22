@@ -20,6 +20,7 @@ const allowedOrigins = [
   "https://mern-u5xf-80erz50ik-sakshis-projects-c4d1ceb4.vercel.app",  // dynamic preview URLs if needed
   "https://mern-nine-mu.vercel.app" ,
   "https://mern-u5xf-d0bsedn7y-sakshis-projects-c4d1ceb4.vercel.app",
+  "https://mern-u5xf-dxk29qgll-sakshis-projects-c4d1ceb4.vercel.app",
 ];
 
 
