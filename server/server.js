@@ -18,7 +18,8 @@ const allowedOrigins = [
   "http://localhost:5173",
   "https://mern-u5xf.vercel.app",  // or any other production frontend URL
   "https://mern-u5xf-80erz50ik-sakshis-projects-c4d1ceb4.vercel.app",  // dynamic preview URLs if needed
-  "https://mern-nine-mu.vercel.app" 
+  "https://mern-nine-mu.vercel.app" ,
+  "https://mern-u5xf-d0bsedn7y-sakshis-projects-c4d1ceb4.vercel.app",
 ];
 
 
@@ -41,17 +42,17 @@ app.use(cors({
 app.use(express.json());
 
 // Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/boards", boardRoutes);
-app.use("/api/lists", listRoutes);
-app.use("/api/cards", cardRoutes);
+
 
 // Global error handler (if any)
 app.use((req, res, next) => {
   console.log(`[REQUEST] ${req.method} ${req.url} from ${req.headers.origin}`);
   next();
 });
-
+app.use("/api/auth", authRoutes);
+app.use("/api/boards", boardRoutes);
+app.use("/api/lists", listRoutes);
+app.use("/api/cards", cardRoutes);
 
 // Enable mongoose debug logging
 mongoose.set('debug', true);
@@ -61,7 +62,7 @@ const connectDb = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI, {
       tls: true,
-      tlsAllowInvalidCertificates: true, // set false in production for security
+      tlsAllowInvalidCertificates: false, // set false in production for security
     });
     console.log("✅ MongoDB connected");
     app.listen(PORT, () => {
