@@ -14,17 +14,18 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Allowed origins for CORS
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://mern-u5xf.vercel.app",          // <-- add your frontend domain here!
-  "https://mern-nine-mu.vercel.app"        // <-- backend domain for direct API calls, if needed
+  "https://mern-u5xf.vercel.app",  // or any other production frontend URL
+  "https://mern-u5xf-80erz50ik-sakshis-projects-c4d1ceb4.vercel.app",  // dynamic preview URLs if needed
+  "https://mern-nine-mu.vercel.app" 
 ];
+
 
 // CORS Middleware - only one instance
 app.use(cors({
   origin: function(origin, callback){
-    if(!origin) return callback(null, true); // allow requests like curl or Postman
+    if(!origin) return callback(null, true); // allow Postman or curl
     if(allowedOrigins.indexOf(origin) === -1){
       const msg = 'The CORS policy for this site does not allow access from this Origin.';
       return callback(new Error(msg), false);
@@ -34,6 +35,7 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
 }));
+
 
 // Parse JSON requests
 app.use(express.json());

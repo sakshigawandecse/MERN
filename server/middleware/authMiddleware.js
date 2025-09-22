@@ -11,10 +11,11 @@ export const protect = async (req, res, next) => {
       req.user = await User.findById(decoded.id).select("-password");
       next();
     } catch (err) {
+      console.error("JWT verification failed:", err.message);
       return res.status(401).json({ message: "Not authorized, token failed" });
     }
-  }
-  if (!token) {
+  } else {
     return res.status(401).json({ message: "Not authorized, no token" });
   }
 };
+
