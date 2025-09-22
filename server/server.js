@@ -45,10 +45,11 @@ app.use("/api/lists", listRoutes);
 app.use("/api/cards", cardRoutes);
 
 // Global error handler (if any)
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: "Something broke!" });
+app.use((req, res, next) => {
+  console.log(`[REQUEST] ${req.method} ${req.url} from ${req.headers.origin}`);
+  next();
 });
+
 
 // Enable mongoose debug logging
 mongoose.set('debug', true);

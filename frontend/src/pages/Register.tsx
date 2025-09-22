@@ -30,21 +30,29 @@ const Register = () => {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setError("");
+  try {
+    const res = await api.post<AuthResponse>("/auth/register", { name, email, password });
+    login(res.data.user, res.data.token);
+    navigate("/");
+  } catch (err: any) {
+    // Helpful debugging output
+    console.log("API request error:", {
+      url: err?.response?.config?.url,
+      method: err?.response?.config?.method,
+      data: err?.response?.data,
+      status: err?.response?.status,
+      message: err?.message,
+    });
+    setError(err.response?.data?.message || "Registration failed. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
-    try {
-      const res = await api.post<AuthResponse>("/auth/register", { name, email, password });
-      login(res.data.user, res.data.token);
-      navigate("/");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Registration failed. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <Container
