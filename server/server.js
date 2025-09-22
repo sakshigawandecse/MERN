@@ -16,8 +16,9 @@ const PORT = process.env.PORT || 5000;
 
 // Allowed origins for CORS
 const allowedOrigins = [
-  "http://localhost:5173",           // Local frontend dev URL
-  "https://mern-5iy1.vercel.app"    // Deployed frontend URL
+  "http://localhost:5173",
+  "https://mern-u5xf.vercel.app",          // <-- add your frontend domain here!
+  "https://mern-nine-mu.vercel.app"        // <-- backend domain for direct API calls, if needed
 ];
 
 // CORS Middleware - only one instance
