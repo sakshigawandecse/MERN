@@ -26,13 +26,13 @@ const allowedOrigins = [
 
 // CORS Middleware - only one instance
 app.use(cors({
-  origin: function(origin, callback){
-    if(!origin) return callback(null, true); // allow Postman or curl
-    if(allowedOrigins.indexOf(origin) === -1){
-      const msg = 'The CORS policy for this site does not allow access from this Origin.';
-      return callback(new Error(msg), false);
+   origin: (origin, callback) => {
+    if(!origin) return callback(null, true); // allow Postman etc
+    if (allowedOrigins.some(o => origin.startsWith(o))) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS not allowed"), false);
     }
-    return callback(null, true);
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true
@@ -46,10 +46,11 @@ app.use(express.json());
 
 
 // Global error handler (if any)
-app.use((req, res, next) => {
+app.use((req, _res, next) => {
   console.log(`[REQUEST] ${req.method} ${req.url} from ${req.headers.origin}`);
   next();
 });
+
 app.use("/api/auth", authRoutes);
 app.use("/api/boards", boardRoutes);
 app.use("/api/lists", listRoutes);
