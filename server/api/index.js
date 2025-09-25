@@ -20,6 +20,7 @@ const allowedOrigins = [
   "https://mern-nine-mu.vercel.app",
   "https://mern-u5xf-d0bsedn7y-sakshis-projects-c4d1ceb4.vercel.app",
   "https://mern-u5xf-dxk29qgll-sakshis-projects-c4d1ceb4.vercel.app",
+   "https://mern-an9o.vercel.app",  
 ];
 
 app.use(cors({
