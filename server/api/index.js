@@ -66,3 +66,4 @@ const connectDb = async () => {
 await connectDb();
 
 export default app;
+
